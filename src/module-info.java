@@ -4,5 +4,5 @@ module TextFileApp {
 	requires javafx.graphics;
 	requires javafx.base;
 	
-	opens application to javafx.graphics, javafx.fxml, javafx.base;
+	opens application to javafx.graphics, javafx.controls, javafx.fxml, javafx.base;
 }
