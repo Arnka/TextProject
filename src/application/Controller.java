@@ -1,20 +1,16 @@
 package application;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -40,6 +36,7 @@ public class Controller implements Initializable {
     
     @FXML Button button = new Button(); 
     @FXML TextField fileName = new TextField();
+    @FXML Button cancelButton = new Button();
     
     
     @FXML private TableView<Words> table;
@@ -47,9 +44,7 @@ public class Controller implements Initializable {
     @FXML private TableColumn<Words, Integer> occurrence; 
     
     @FXML ProgressBar progressBar = new ProgressBar();
-   
-    
-   
+
     public ObservableList<Words> listW = FXCollections.observableArrayList();
  
     FileInputStream inputStream = null;
@@ -78,7 +73,8 @@ public class Controller implements Initializable {
     public void chooseButton(ActionEvent e) {
         
         long start = new Date().getTime();
-        progressBar.setProgress(0);
+        
+        cancelButton.setDisable(false);
 
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 
@@ -93,73 +89,34 @@ public class Controller implements Initializable {
         if (file != null) {
     
             try {
-                /*
+                
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
-                        String path = file.getPath();
-                        File f = new File(path);
-                        ByteArrayOutputStream bos = null;
-                        fileName.setText(path);
-                        long fileSize = f.length();
-                        double lengthPerPercent = 100.0 / fileSize;
-                        long readLength = 0;
-                        
-                        //System.out.println(fileSize);
-                        
-                        for(int i=0; i<101;i++){
-                    //        updateProgress(i, 100);
-                      //      Thread.sleep(10);
-                        }
-                      
-                        
-                        //
-                        try {
-                            inputStream = new FileInputStream(f);
-                            byte[] buffer = new byte[8192];
-                            bos = new ByteArrayOutputStream();
-                            for (int len; (len = inputStream.read(buffer)) != -1;) {
-                                bos.write(buffer, 0, len);
 
-                                updateProgress(len, f.length());
-                                 I sleeped operation because reading operation is quiqly
-                                Thread.sleep(10);
-                            }
-                            System.out.println("Reading is finished");
-                        } catch (FileNotFoundException e) {
-                            System.err.println(e.getMessage());
-                        } catch (IOException e2) {
-                            System.err.println(e2.getMessage());
+                      for(int i=1; i<=100;i++){
+                           updateProgress(i, 100);
+                            Thread.sleep(100);
                         }
-                        
+
                         return null;
                     }
                 };
-*/
-                listW.clear();
 
+                listW.clear();
+                
                 inputStream = new FileInputStream(file);
                 DataInputStream in = new DataInputStream(inputStream);
                 br = new BufferedReader(new InputStreamReader(in,"Cp1252"));
-                //br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "Cp1252"));
+                
                 String currentLine;
                 
                 
                 //
                 String path = file.getPath();
-                File f = new File(path);
-                long totalLength = f.length();
-                double lengthPerPercent = 100.0 / totalLength;
-                long readLength = 0;
-                System.out.println(totalLength);
-            
-                
-                
+                fileName.setText(path);
+
                 while ((currentLine = br.readLine()) != null) {
-                    readLength += currentLine.length();
-                    progressBar.setProgress(lengthPerPercent * readLength);
-                    //updateProgress((int) Math.round(lengthPerPercent * readLength));
-                    //Thread.sleep(10);
                     contentBuilder.append(currentLine).append(" ");
                 }
                 
@@ -177,18 +134,17 @@ public class Controller implements Initializable {
    
                 occurrence.setSortType(TableColumn.SortType.DESCENDING);
                 table.getSortOrder().addAll(occurrence);
-               
                 long end = new Date().getTime();
                 long time = end - start;
                 System.out.println("Scanner Time Consumed => " + time);
                 
-         /*       Thread th = new Thread(task);
+                Thread th = new Thread(task);
                 th.setDaemon(true);
                 th.start();
                 
                 progressBar.progressProperty().unbind();
                 progressBar.progressProperty().bind(task.progressProperty());
-               */ 
+                
             } catch (IOException ioe) {
 
                 ioe.printStackTrace();
@@ -210,6 +166,15 @@ public class Controller implements Initializable {
     public void clear(ActionEvent e) {
         System.out.println("Clear");
         listW.clear();
+    }
+    
+    public void cancel(ActionEvent e) {
+        cancelButton.setDisable(true);
+        progressBar.progressProperty().unbind();
+        progressBar.setProgress(0);
+        fileName.setText(" ");
+        listW.clear();
+        System.out.println("cancelled.");
     }
 
 }
