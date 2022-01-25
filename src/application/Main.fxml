@@ -20,8 +20,8 @@
                 <TableColumn id="occurrence" fx:id="occurrence" editable="false" minWidth="0.0" prefWidth="219.0" text="occurrence" />
               </columns>
             </TableView>
-            <ProgressBar fx:id="progressBar" layoutX="43.0" layoutY="88.0" prefHeight="18.0" prefWidth="434.0" progress="0.0" />
-            <Button cancelButton="true" layoutX="425.0" layoutY="117.0" mnemonicParsing="false" text="Cancel" />
+            <ProgressBar fx:id="progressBar" layoutX="43.0" layoutY="88.0" prefHeight="18.0" prefWidth="379.0" progress="0.0" />
+            <Button cancelButton="true" layoutX="426.0" layoutY="83.0" mnemonicParsing="false" text="Cancel" />
          </children>
       </AnchorPane>
    </children>

@@ -78,6 +78,7 @@ public class Controller implements Initializable {
     public void chooseButton(ActionEvent e) {
         
         long start = new Date().getTime();
+        progressBar.setProgress(0);
 
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 
@@ -89,55 +90,39 @@ public class Controller implements Initializable {
        
         BufferedReader br;
 
-        //System.out.format("The size of the file: %d bytes", fileSize);
-
         if (file != null) {
     
             try {
-
-  /*            Read file with Scanner
-   *  
-                inputStream = new FileInputStream(file);
-                sc = new Scanner(inputStream, "UTF-8");
-                String fileContent="";
-                while (sc.hasNextLine()) {
-                    fileContent = fileContent.concat(sc.nextLine() + " ");  
-                } */
-                
-              //ProgresBar
-                
-                
-                
+                /*
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
                         String path = file.getPath();
                         File f = new File(path);
-                        //ByteArrayOutputStream bos = null;
+                        ByteArrayOutputStream bos = null;
                         fileName.setText(path);
                         long fileSize = f.length();
                         double lengthPerPercent = 100.0 / fileSize;
                         long readLength = 0;
                         
-                        System.out.println(fileSize);
+                        //System.out.println(fileSize);
                         
-                        for(int i=0; i<100;i++){
-                            updateProgress(i, fileSize);
-                            Thread.sleep(10);
+                        for(int i=0; i<101;i++){
+                    //        updateProgress(i, 100);
+                      //      Thread.sleep(10);
                         }
-                        
+                      
                         
                         //
-                        /*
                         try {
                             inputStream = new FileInputStream(f);
-                            byte[] buffer = new byte[1024];
+                            byte[] buffer = new byte[8192];
                             bos = new ByteArrayOutputStream();
                             for (int len; (len = inputStream.read(buffer)) != -1;) {
                                 bos.write(buffer, 0, len);
 
                                 updateProgress(len, f.length());
-                                /* I sleeped operation because reading operation is quiqly
+                                 I sleeped operation because reading operation is quiqly
                                 Thread.sleep(10);
                             }
                             System.out.println("Reading is finished");
@@ -146,21 +131,11 @@ public class Controller implements Initializable {
                         } catch (IOException e2) {
                             System.err.println(e2.getMessage());
                         }
-                        */
                         
                         return null;
                     }
                 };
-                
-               
-                
-                Thread th = new Thread(task);
-                th.setDaemon(true);
-                th.start();
-                
-                progressBar.progressProperty().unbind();
-                progressBar.progressProperty().bind(task.progressProperty());
-                
+*/
                 listW.clear();
 
                 inputStream = new FileInputStream(file);
@@ -170,8 +145,21 @@ public class Controller implements Initializable {
                 String currentLine;
                 
                 
+                //
+                String path = file.getPath();
+                File f = new File(path);
+                long totalLength = f.length();
+                double lengthPerPercent = 100.0 / totalLength;
+                long readLength = 0;
+                System.out.println(totalLength);
+            
+                
+                
                 while ((currentLine = br.readLine()) != null) {
-                    
+                    readLength += currentLine.length();
+                    progressBar.setProgress(lengthPerPercent * readLength);
+                    //updateProgress((int) Math.round(lengthPerPercent * readLength));
+                    //Thread.sleep(10);
                     contentBuilder.append(currentLine).append(" ");
                 }
                 
@@ -194,6 +182,13 @@ public class Controller implements Initializable {
                 long time = end - start;
                 System.out.println("Scanner Time Consumed => " + time);
                 
+         /*       Thread th = new Thread(task);
+                th.setDaemon(true);
+                th.start();
+                
+                progressBar.progressProperty().unbind();
+                progressBar.progressProperty().bind(task.progressProperty());
+               */ 
             } catch (IOException ioe) {
 
                 ioe.printStackTrace();
