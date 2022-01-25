@@ -7,9 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-
-
-import java.util.Date;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -55,8 +53,6 @@ public class Controller implements Initializable {
     
     File file;
 
-    String fileContent;
-    
     StringBuilder contentBuilder = new StringBuilder();
    
     BufferedReader br;
@@ -65,7 +61,6 @@ public class Controller implements Initializable {
         
         Map<String, Integer> map = new HashMap<String, Integer>();
         int count = 0;
-
         for (String w : words) {
 
           if (map.containsKey(w)) {
@@ -76,6 +71,8 @@ public class Controller implements Initializable {
           }
 
         }
+        
+        System.out.println(map.size());
         return map;
       };
 
@@ -83,8 +80,7 @@ public class Controller implements Initializable {
           
           try {
               
-          listW.clear();
-              
+          listW.clear();  
           inputStream = new FileInputStream(file);
           DataInputStream in = new DataInputStream(inputStream);
           br = new BufferedReader(new InputStreamReader(in,"Cp1252"));
@@ -100,15 +96,23 @@ public class Controller implements Initializable {
           
           br.close();
           
+          String fileContent;
+          
           fileContent = (contentBuilder.toString()).replaceAll("\\s{2,}", " ").trim();
-          String words[] = fileContent.split(" ");
+
+          String[] words = fileContent.split(" ");
+          
+          System.out.println("Velicina words prije mape:" + words.length);
           
           Map<String, Integer> map = wordCount(words);
 
+          System.out.println("Velicina words prije liste:" + words.length);
           for (String i : map.keySet()) {
               
                listW.add(new Words(i, map.get(i)));
           }
+
+          System.out.println("Velicina words nakon svega:" + words.length);
 
           occurrence.setSortType(TableColumn.SortType.DESCENDING);
           table.getSortOrder().addAll(occurrence);
@@ -130,9 +134,8 @@ public class Controller implements Initializable {
 
         file = fileChooser.showOpenDialog(new Stage());
 
-
         if (file != null) {
-
+            /*
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
@@ -156,8 +159,11 @@ public class Controller implements Initializable {
                         cancelButton.setDisable(true);
                     }
                 });
-        
-                cancelButton.setOnAction((ActionEvent event) -> {
+        */
+                listW.clear();
+                readFile();
+                
+               /* cancelButton.setOnAction((ActionEvent event) -> {
                     listW.clear();
                     cancelButton.setDisable(true);
                     progressBar.progressProperty().unbind();
@@ -173,7 +179,7 @@ public class Controller implements Initializable {
                 th.start();
                 
                 progressBar.progressProperty().unbind();
-                progressBar.progressProperty().bind(task.progressProperty());
+                progressBar.progressProperty().bind(task.progressProperty());*/
                 
             } 
                  
@@ -192,6 +198,7 @@ public class Controller implements Initializable {
     public void clear(ActionEvent e) {
         System.out.println("Clear");
         listW.clear();
+        System.out.println(listW.size());
     }
     /*
     public void cancel(ActionEvent e) {
