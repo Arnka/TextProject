@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -57,6 +56,10 @@ public class Controller implements Initializable {
    
     BufferedReader br;
     
+    String fileContent;
+    
+    String[] words;
+    
     public Map<String, Integer> wordCount(String[] words) {
         
         Map<String, Integer> map = new HashMap<String, Integer>();
@@ -69,60 +72,10 @@ public class Controller implements Initializable {
           } else {
               map.put(w, 1);
           }
-
         }
-        
-        System.out.println(map.size());
         return map;
       };
 
-      public void readFile() {
-          
-          try {
-              
-          listW.clear();  
-          inputStream = new FileInputStream(file);
-          DataInputStream in = new DataInputStream(inputStream);
-          br = new BufferedReader(new InputStreamReader(in,"Cp1252"));
-          
-          String currentLine;
-          
-          String path = file.getPath();
-          fileName.setText(path);
-
-          while ((currentLine = br.readLine()) != null) {
-              contentBuilder.append(currentLine).append(" ");
-          }
-          
-          br.close();
-          
-          String fileContent;
-          
-          fileContent = (contentBuilder.toString()).replaceAll("\\s{2,}", " ").trim();
-
-          String[] words = fileContent.split(" ");
-          
-          System.out.println("Velicina words prije mape:" + words.length);
-          
-          Map<String, Integer> map = wordCount(words);
-
-          System.out.println("Velicina words prije liste:" + words.length);
-          for (String i : map.keySet()) {
-              
-               listW.add(new Words(i, map.get(i)));
-          }
-
-          System.out.println("Velicina words nakon svega:" + words.length);
-
-          occurrence.setSortType(TableColumn.SortType.DESCENDING);
-          table.getSortOrder().addAll(occurrence);
-          }
-          catch (IOException ioe) {
-
-              ioe.printStackTrace();
-          }
-
-      }
    
     public void chooseButton(ActionEvent e) {
         
@@ -135,14 +88,14 @@ public class Controller implements Initializable {
         file = fileChooser.showOpenDialog(new Stage());
 
         if (file != null) {
-            /*
+            
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
 
                       for(int i=1; i<=100;i++){
                            updateProgress(i, 100);
-                            Thread.sleep(1);
+                            Thread.sleep(10);
                         }
 
                         return null;
@@ -159,11 +112,8 @@ public class Controller implements Initializable {
                         cancelButton.setDisable(true);
                     }
                 });
-        */
-                listW.clear();
-                readFile();
-                
-               /* cancelButton.setOnAction((ActionEvent event) -> {
+       
+                cancelButton.setOnAction((ActionEvent event) -> {
                     listW.clear();
                     cancelButton.setDisable(true);
                     progressBar.progressProperty().unbind();
@@ -179,7 +129,7 @@ public class Controller implements Initializable {
                 th.start();
                 
                 progressBar.progressProperty().unbind();
-                progressBar.progressProperty().bind(task.progressProperty());*/
+                progressBar.progressProperty().bind(task.progressProperty());
                 
             } 
                  
@@ -189,7 +139,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         
-        fileChooser.setInitialDirectory(new File("/Users/Hp/Downloads/")); 
+        //fileChooser.setInitialDirectory(new File("/Users/Hp/Desktop/")); 
         word.setCellValueFactory(new PropertyValueFactory<Words, String>("word"));
         occurrence.setCellValueFactory(new PropertyValueFactory<Words, Integer>("occurrence"));
         table.setItems(listW);
@@ -198,16 +148,49 @@ public class Controller implements Initializable {
     public void clear(ActionEvent e) {
         System.out.println("Clear");
         listW.clear();
-        System.out.println(listW.size());
     }
-    /*
-    public void cancel(ActionEvent e) {
-        listW.clear();
-        cancelButton.setDisable(true);
-        progressBar.progressProperty().unbind();
-        progressBar.setProgress(0);
-        fileName.setText(" ");
-        System.out.println("cancelled.");
-    }*/
 
+    public void readFile() {
+        
+        try {
+            
+        listW.clear();  
+        inputStream = new FileInputStream(file);
+        DataInputStream in = new DataInputStream(inputStream);
+        br = new BufferedReader(new InputStreamReader(in,"Cp1252"));
+        
+        String currentLine=null;;
+        
+        String path = file.getPath();
+        fileName.setText(path);
+
+        while ((currentLine = br.readLine()) != null) {
+            contentBuilder.append(currentLine).append(" ");
+        }
+        
+        br.close();
+
+        fileContent = (contentBuilder.toString()).replaceAll("\\s{2,}", " ").trim();
+
+        words = fileContent.split(" ");
+        contentBuilder.setLength(0);
+
+        
+        Map<String, Integer> map = wordCount(words);
+
+        for (String i : map.keySet()) {
+            
+             listW.add(new Words(i, map.get(i)));
+        }
+
+
+        occurrence.setSortType(TableColumn.SortType.DESCENDING);
+        table.getSortOrder().addAll(occurrence);
+        }
+        catch (IOException ioe) {
+
+            ioe.printStackTrace();
+        }
+
+    }
 }
