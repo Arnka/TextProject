@@ -30,6 +30,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class Controller implements Initializable {
+
     
     //FXML
     
@@ -135,20 +136,18 @@ public class Controller implements Initializable {
                  
         }
         
+
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        
+
         //fileChooser.setInitialDirectory(new File("/Users/Hp/Desktop/")); 
         word.setCellValueFactory(new PropertyValueFactory<Words, String>("word"));
         occurrence.setCellValueFactory(new PropertyValueFactory<Words, Integer>("occurrence"));
         table.setItems(listW);
+
         }
 
-    public void clear(ActionEvent e) {
-        System.out.println("Clear");
-        listW.clear();
-    }
 
     public void readFile() {
         
