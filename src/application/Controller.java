@@ -192,4 +192,13 @@ public class Controller implements Initializable {
         }
 
     }
+    
+    public void clear(ActionEvent e) {
+        System.out.println("Clear");
+        listW.clear();
+        cancelButton.setDisable(true);
+        progressBar.progressProperty().unbind();
+        progressBar.setProgress(0);
+        fileName.setText(" ");
+    }
 }
