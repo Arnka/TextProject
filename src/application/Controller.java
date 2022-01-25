@@ -18,7 +18,9 @@ import java.util.Scanner;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -51,8 +53,16 @@ public class Controller implements Initializable {
     Scanner sc = null;
     FileChooser fileChooser = new FileChooser();
     
-    public Map<String, Integer> wordCount(String[] words) {
+    File file;
 
+    String fileContent;
+    
+    StringBuilder contentBuilder = new StringBuilder();
+   
+    BufferedReader br;
+    
+    public Map<String, Integer> wordCount(String[] words) {
+        
         Map<String, Integer> map = new HashMap<String, Integer>();
         int count = 0;
 
@@ -69,75 +79,95 @@ public class Controller implements Initializable {
         return map;
       };
 
+      public void readFile() {
+          
+          try {
+              
+          listW.clear();
+              
+          inputStream = new FileInputStream(file);
+          DataInputStream in = new DataInputStream(inputStream);
+          br = new BufferedReader(new InputStreamReader(in,"Cp1252"));
+          
+          String currentLine;
+          
+          String path = file.getPath();
+          fileName.setText(path);
+
+          while ((currentLine = br.readLine()) != null) {
+              contentBuilder.append(currentLine).append(" ");
+          }
+          
+          br.close();
+          
+          fileContent = (contentBuilder.toString()).replaceAll("\\s{2,}", " ").trim();
+          String words[] = fileContent.split(" ");
+          
+          Map<String, Integer> map = wordCount(words);
+
+          for (String i : map.keySet()) {
+              
+               listW.add(new Words(i, map.get(i)));
+          }
+
+          occurrence.setSortType(TableColumn.SortType.DESCENDING);
+          table.getSortOrder().addAll(occurrence);
+          }
+          catch (IOException ioe) {
+
+              ioe.printStackTrace();
+          }
+
+      }
    
     public void chooseButton(ActionEvent e) {
         
-        long start = new Date().getTime();
+        listW.clear();
         
         cancelButton.setDisable(false);
 
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 
-        File file = fileChooser.showOpenDialog(new Stage());
+        file = fileChooser.showOpenDialog(new Stage());
 
-        String fileContent;
-        
-        StringBuilder contentBuilder = new StringBuilder();
-       
-        BufferedReader br;
 
         if (file != null) {
-    
-            try {
-                
+
                 Task<Void> task = new Task<Void>() {
                     @Override
                     protected Void call() throws Exception {
 
                       for(int i=1; i<=100;i++){
                            updateProgress(i, 100);
-                            Thread.sleep(100);
+                            Thread.sleep(1);
                         }
 
                         return null;
                     }
                 };
-
-                listW.clear();
-                
-                inputStream = new FileInputStream(file);
-                DataInputStream in = new DataInputStream(inputStream);
-                br = new BufferedReader(new InputStreamReader(in,"Cp1252"));
-                
-                String currentLine;
-                
-                
-                //
-                String path = file.getPath();
-                fileName.setText(path);
-
-                while ((currentLine = br.readLine()) != null) {
-                    contentBuilder.append(currentLine).append(" ");
-                }
-                
-                br.close();
-                
-                fileContent = (contentBuilder.toString()).replaceAll("\\s{2,}", " ").trim();
-                String words[] = fileContent.split(" ");
-                
-                Map<String, Integer> map = wordCount(words);
-
-                for (String i : map.keySet()) {
-                    
-                     listW.add(new Words(i, map.get(i)));
-                }
-   
-                occurrence.setSortType(TableColumn.SortType.DESCENDING);
-                table.getSortOrder().addAll(occurrence);
-                long end = new Date().getTime();
-                long time = end - start;
-                System.out.println("Scanner Time Consumed => " + time);
-                
+      
+                task.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
+                    @Override
+                    public void handle(WorkerStateEvent event)
+                    {
+                        listW.clear();
+                        System.out.println("Finished"); 
+                        readFile();
+                        cancelButton.setDisable(true);
+                    }
+                });
+        
+                cancelButton.setOnAction((ActionEvent event) -> {
+                    listW.clear();
+                    cancelButton.setDisable(true);
+                    progressBar.progressProperty().unbind();
+                    progressBar.setProgress(0);
+                    fileName.setText(" ");
+                    task.cancel();
+                    System.out.println("Cancelled");
+                  });
+      
+             
                 Thread th = new Thread(task);
                 th.setDaemon(true);
                 th.start();
@@ -145,14 +175,10 @@ public class Controller implements Initializable {
                 progressBar.progressProperty().unbind();
                 progressBar.progressProperty().bind(task.progressProperty());
                 
-            } catch (IOException ioe) {
-
-                ioe.printStackTrace();
-            }
+            } 
                  
         }
         
-    }
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -167,14 +193,14 @@ public class Controller implements Initializable {
         System.out.println("Clear");
         listW.clear();
     }
-    
+    /*
     public void cancel(ActionEvent e) {
+        listW.clear();
         cancelButton.setDisable(true);
         progressBar.progressProperty().unbind();
         progressBar.setProgress(0);
         fileName.setText(" ");
-        listW.clear();
         System.out.println("cancelled.");
-    }
+    }*/
 
 }
